@@ -102,38 +102,51 @@ int main()
 
 
     // TRIANGLE 1
-    float first_triangle[] = {
+    float vertices1[] = {
         -0.5f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
         -0.25f, 0.5f, 0.0f,
     };
 
-    float second_triangle[] = {
+    unsigned int VBO1, VAO1;
+    glGenVertexArrays(1, &VAO1);
+    glGenBuffers(1, &VBO1);
+    
+    glBindVertexArray(VAO1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // unbind VBO and VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // TRIANGLE 2
+    float vertices2[] = {
         0.5f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
         0.25f, 0.5f, 0.0f,
     };
 
-    unsigned int arr_vbo[2], arr_vao[2];
-    glGenVertexArrays(2, arr_vao);
-    glGenBuffers(2, arr_vbo);
+    unsigned int VBO2, VAO2;
+    glGenVertexArrays(1, &VAO2);
+    glGenBuffers(1, &VBO2);
 
-    // setup first triangle
-    // bind vao before vbo
-    glBindVertexArray(arr_vao[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, arr_vbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(first_triangle), first_triangle, GL_STATIC_DRAW);
+    glBindVertexArray(VAO2);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // setup second triangle
-    glBindVertexArray(arr_vao[1]);
-    glBindBuffer(GL_ARRAY_BUFFER, arr_vbo[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(second_triangle), second_triangle, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // unbind VBO and VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
 
     // render loop
     // -----------
@@ -150,10 +163,10 @@ int main()
 
         glUseProgram(shaderProgram);
 
-        glBindVertexArray(arr_vao[0]);
+        glBindVertexArray(VAO1);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        glBindVertexArray(arr_vao[1]);
+        glBindVertexArray(VAO2);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -164,8 +177,10 @@ int main()
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(2, arr_vao);
-    glDeleteBuffers(2, arr_vao);
+    glDeleteVertexArrays(1, &VAO1);
+    glDeleteBuffers(1, &VBO1);
+    glDeleteVertexArrays(1, &VAO2);
+    glDeleteBuffers(1, &VBO2);
     glDeleteProgram(shaderProgram);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
