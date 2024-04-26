@@ -2,6 +2,9 @@ solutions/
 *.pdf
 notes/
 
+# visual studio code
+.vscode
+
 # visual studio
 
 ## Ignore Visual Studio temporary files, build results, and
