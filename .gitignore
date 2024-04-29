@@ -1,6 +1,7 @@
-solutions/
+_solutions/
 *.pdf
-notes/
+_notes/
+*.xopp
 
 # visual studio code
 .vscode
