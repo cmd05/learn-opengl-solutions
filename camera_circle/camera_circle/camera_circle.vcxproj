@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{00f29b9d-3a3e-4498-a25f-1e3a1fd607dc}</ProjectGuid>
-    <RootNamespace>coordinates_experiment_cubes</RootNamespace>
+    <ProjectGuid>{4e92e0d5-c4c6-4d96-98b3-0c507c76db83}</ProjectGuid>
+    <RootNamespace>camera_circle</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
