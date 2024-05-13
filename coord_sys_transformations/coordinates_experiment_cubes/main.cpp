@@ -252,7 +252,7 @@ int main()
         
         /// Projection Matrix
         {
-            //float n = 1.0f, f = 100.0f, b = -1.0f, t = 1.0f, l = -1.33f, r = 1.33f;
+            float n = 1.0f, f = 100.0f, b = -1.0f, t = 1.0f, l = -1.33f, r = 1.33f;
             
             /// glm::frustum
             //projection = glm::frustum(l, r, b, t, n, f);
@@ -266,14 +266,22 @@ int main()
             //});
             
             /// non-linear z-mapping
-            //projection = glm::transpose(glm::mat4 {
-            //    2*n / (r-l), 0, (r+l)/(r-l), 0.0f,
-            //    0.0f, 2*n/(t-b), (t+b)/(t-b), 0.0f,
-            //    0.0f, 0.0f, -(f+n)/(f-n), -(2*f*n)/(f-n),
-            //    0.0f, 0.0f, -1.0f, 0.0f
+            projection = glm::transpose(glm::mat4 {
+                2*n / (r-l), 0, (r+l)/(r-l), 0.0f,
+                0.0f, 2*n/(t-b), (t+b)/(t-b), 0.0f,
+                0.0f, 0.0f, -(f+n)/(f-n), -(2*f*n)/(f-n),
+                0.0f, 0.0f, -1.0f, 0.0f
+                
+                //0.0f, 0.0f, 0.0f, 2.0f,
+                // Note: each vertex has its own independent clip space
+                // clip space for each vertex is an independent cube for that vertex from (-2,-2,-2) to (2,2,2)
+            });
 
-            //    //0.0f, 0.0f, 0.0f, 2.0f, // define clip space as (-2, -2, -2) to (2, 2, 2)
-            //});
+            // **Every vertex has it's own clip space in which it exists
+            // (and basically needs to "fit" in, otherwise it CLIPS).
+            // ** there is not 1 "world" that is the clip space. **
+ 
+            // constant value of wc does not reproduce the effect of perspective projection correctly
 
             /// infinite perspective
             //projection = glm::transpose(glm::mat4{
@@ -284,19 +292,19 @@ int main()
             //});
 
             /// By vertical FOV
-            float n = 1.0f, f = 100.0f, angle = glm::radians(90.0f), a_r = (float) SCREEN_CURR_WIDTH / SCREEN_CURR_HEIGHT;
-            float tan_half_angle = tanf(angle / 2);
+            //float n = 1.0f, f = 100.0f, angle = glm::radians(90.0f), a_r = (float) SCREEN_CURR_WIDTH / SCREEN_CURR_HEIGHT;
+            //float tan_half_angle = tanf(angle / 2);
 
-            float top = n * tan_half_angle;
-            float right = top * a_r;
+            //float top = n * tan_half_angle;
+            //float right = top * a_r;
             //std::cout << top << " " << right << '\n';
 
-            projection = glm::transpose(glm::mat4{
+            /*projection = glm::transpose(glm::mat4{
                 1.0f / (tan_half_angle * a_r), 0.0f, 0.0f, 0.0f,
                 0.0f, 1.0f / tan_half_angle, 0.0f, 0.0f,
                 0.0f, 0.0f, -(f + n) / (f - n), -(2 * f * n) / (f - n),
                 0.0f, 0.0f, -1.0f, 0.0f
-            });
+            });*/
 
             /// By glm::perspective
             //projection = glm::perspective(glm::radians(90.0f), (float)SCREEN_CURR_WIDTH / (float)SCREEN_CURR_HEIGHT, 1.0f, 100.0f);
