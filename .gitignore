@@ -2,9 +2,13 @@ _solutions/
 *.pdf
 _notes/
 *.xopp
+/test.cpp
 
 # visual studio code
 .vscode
+
+# binaries
+*.exe
 
 # visual studio
 
