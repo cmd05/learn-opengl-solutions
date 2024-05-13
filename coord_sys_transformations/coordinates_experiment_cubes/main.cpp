@@ -252,7 +252,7 @@ int main()
         
         /// Projection Matrix
         {
-            //float n = 1.0f, f = 100.0f, b = -2.0f, t = 2.0f, l = -2.66f, r = 2.66f;
+            //float n = 1.0f, f = 100.0f, b = -1.0f, t = 1.0f, l = -1.33f, r = 1.33f;
             
             /// glm::frustum
             //projection = glm::frustum(l, r, b, t, n, f);
@@ -284,26 +284,26 @@ int main()
             //});
 
             /// By vertical FOV
-            //float n = 2.0f, f = 100.0f, angle = glm::radians(90.0f), a_r = (float) SCREEN_CURR_WIDTH / SCREEN_CURR_HEIGHT;
-            //float tan_half_angle = tanf(angle / 2);
+            float n = 1.0f, f = 100.0f, angle = glm::radians(90.0f), a_r = (float) SCREEN_CURR_WIDTH / SCREEN_CURR_HEIGHT;
+            float tan_half_angle = tanf(angle / 2);
 
-            //float top = n * tan_half_angle;
-            //float right = top * a_r;
-            //std::cout << top << " " << right;
+            float top = n * tan_half_angle;
+            float right = top * a_r;
+            //std::cout << top << " " << right << '\n';
 
-            //projection = glm::transpose(glm::mat4{
-            //    1.0f / (tan_half_angle * a_r), 0.0f, 0.0f, 0.0f,
-            //    0.0f, 1.0f / tan_half_angle, 0.0f, 0.0f,
-            //    0.0f, 0.0f, -(f + n) / (f - n), -(2 * f * n) / (f - n),
-            //    0.0f, 0.0f, -1.0f, 0.0f
-            //});
+            projection = glm::transpose(glm::mat4{
+                1.0f / (tan_half_angle * a_r), 0.0f, 0.0f, 0.0f,
+                0.0f, 1.0f / tan_half_angle, 0.0f, 0.0f,
+                0.0f, 0.0f, -(f + n) / (f - n), -(2 * f * n) / (f - n),
+                0.0f, 0.0f, -1.0f, 0.0f
+            });
 
             /// By glm::perspective
-            //projection = glm::perspective(glm::radians(90.0f), (float)SCREEN_CURR_WIDTH / (float)SCREEN_CURR_HEIGHT, 2.0f, 100.0f);
+            //projection = glm::perspective(glm::radians(90.0f), (float)SCREEN_CURR_WIDTH / (float)SCREEN_CURR_HEIGHT, 1.0f, 100.0f);
             //std::cout << glm::to_string(projection) << std::endl;
 
             /// Orthographic Projection
-            //float n = 1.0f, f = 100.0f, b = -2.0f, t = 2.0f, l = -2.66f, r = 2.66f;
+            //float n = 1.0f, f = 100.0f, b = -1.0f, t = 1.0f, l = -1.33f, r = 1.33f;
 
             //projection = glm::transpose(glm::mat4{
             //    2.0 / (r - l), 0.0, 0.0, 0.0,
