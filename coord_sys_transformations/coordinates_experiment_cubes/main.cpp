@@ -194,8 +194,8 @@ int main()
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     shaderProgram.use();
-    shaderProgram.setInt("texture1", 0);
-    shaderProgram.setInt("texture2", 1);
+    shaderProgram.setInt("texture1", 0); // set uniform "texture1" to unit 0 
+    shaderProgram.setInt("texture2", 1); // set uniform "texture2" to unit 1
 
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -214,9 +214,9 @@ int main()
 
         // bind textures to corresponding texture units
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
+        glBindTexture(GL_TEXTURE_2D, texture1); // bind texture1 to unit 0
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        glBindTexture(GL_TEXTURE_2D, texture2); // bind texture2 to unit 1
 
         shaderProgram.use();
         
@@ -300,6 +300,25 @@ int main()
         //std::cout << "glm: " << glm::to_string(glm::transpose(view)) << std::endl;
 
         /// Projection Matrix
+
+        // We are creating a projection matrix such that the w-component is appropriately set
+        // for perspective division.
+        
+        // However, we may further modify the projection matrix (or even other matrices like view and model matrices) in the
+        // vertex shader, after it is passed to the vertex shader using a uniform.
+
+        // Ultimately, after the end of the vertex shader, each vertex should be within it's clip space
+        // All vertices outside their clip space (since they were already outside our view frustum) will be
+        // clipped (discarded).
+        // ... After this perspective division is performed by the rasterizer and the clip space coordinates are converted to NDC
+
+        // Note that in the process of mapping the z-coordinates in the projection matrix,
+        // we had correctly changed from right-handed coordinate system
+        // of the view space to the left-handed coordinate system required by the rasterizer
+        
+        // Hence, the model, world and view space are right-handed coordinate systems 
+        // while clip space and NDC are left handed coordinate system
+
         {
             float n = 1.0f, f = 100.0f, b = -1.0f, t = 1.0f, l = -1.33f, r = 1.33f;
             
