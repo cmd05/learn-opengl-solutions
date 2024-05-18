@@ -6,17 +6,38 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-//#include <learnopengl/filesystem.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #include <learnopengl/shader_m.h>
 
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+// camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+bool firstMouse = true;
+float yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float pitch = 0.0f;
+float lastX = SCR_WIDTH / 2.0;
+float lastY = SCR_HEIGHT / 2.0;
+float fov = 45.0f;
+
+// timing
+// used for speed calculation
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
 
 int main()
 {
@@ -42,6 +63,11 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    // tell GLFW to capture our mouse
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -191,16 +217,17 @@ int main()
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
 
-    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-    // -----------------------------------------------------------------------------------------------------------
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    ourShader.setMat4("projection", projection);
-
 
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        // per-frame time logic
+        // --------------------
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         // input
         // -----
         processInput(window);
@@ -220,20 +247,68 @@ int main()
         ourShader.use();
 
         // camera/view transformation
-        glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        float radius = 5.0f;
-        float camX = static_cast<float>(sin(glfwGetTime()) * radius);
-        float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
-        view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        
+        // world vectors
+        glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+        // we specify the target point in cameraTarget
+
+        // we dont have a target per-say. we want to move the z-axis of camera based on mouse input
+        // the positive z-axis is given by the opposite of the direction vector cameraFront
+        // cameraFront: points to front of camera
+        // cameraFront is a unit vector which describes a unit sphere about the origin
+        // we just want to set the positive z-axis of the camera
+        
+
+        // but ... in order to use glm::lookAt, we have to specify a target point
+        // we can simply set a target point which is 1 unit in front of the camera
+        // since, cameraFront is itself a unit vector. adding it to cameraPos (by shifting tail of cameraFront
+        // to the head of cameraPos, gives a position vector which points to the target point
+        
+        glm::vec3 cameraTarget = cameraFront + cameraPos;
+        glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, worldUp);
+
+        // camera axes
+        //glm::vec3 zaxis = -cameraFront; // skip specifying target, directly specify +z axis of camera
+        //                                // cameraFront is already a unit vector about origin
+
+        //glm::vec3 xaxis = glm::normalize(glm::cross(worldUp, zaxis)); // +x axis of camera (cameraRight)
+        //glm::vec3 yaxis = glm::cross(zaxis, xaxis); // +y axis of camera (cameraUp)
+
+        //glm::mat4 view_rotation = glm::transpose(glm::mat4{
+        //    xaxis.x, xaxis.y, xaxis.z, 0.0,
+        //    yaxis.x, yaxis.y, yaxis.z, 0.0,
+        //    zaxis.x, zaxis.y, zaxis.z, 0.0,
+        //    0.0, 0.0, 0.0, 1.0
+        //});
+
+        //glm::mat4 view_translation = glm::transpose(glm::mat4{
+        //    1.0, 0.0, 0.0, -cameraPos.x,
+        //    0.0, 1.0, 0.0, -cameraPos.y,
+        //    0.0, 0.0, 1.0, -cameraPos.z,
+        //    0.0, 0.0, 0.0, 1.0
+        //});
+
+        //// NOTE: Look-at matrix is given by `rotation_matrix` * `translation_matrix`,
+        //// unlike the conventional rotate then translate
+        //glm::mat4 view = view_rotation * view_translation;
+
         ourShader.setMat4("view", view);
+
+        // pass projection matrix to shader (note that in this case it could change every frame)
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        ourShader.setMat4("projection", projection);
 
         // render boxes
         glBindVertexArray(VAO);
+        
+        float time = (float)glfwGetTime();
         for (unsigned int i = 0; i < 10; i++)
         {
             // calculate the model matrix for each object and pass it to shader before drawing
-            glm::mat4 model = glm::mat4(1.0f);
+            glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
             model = glm::translate(model, cubePositions[i]);
+
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             ourShader.setMat4("model", model);
@@ -264,6 +339,21 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    float cameraSpeed = static_cast<float>(5 * deltaTime);
+    glm::vec3 cam_right = glm::cross(cameraFront, cameraUp);
+
+    // keyboard movement
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(cam_right) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(cam_right) * cameraSpeed;
+
+    cameraPos.y = 0; // set y coordinate of camera to always be zero
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -273,4 +363,61 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f; // change this value to your liking
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+
+    yaw += xoffset;
+
+    if (yaw >= 359 || yaw <= -359) // prevent overflow
+        yaw = 0;
+    
+    pitch += yoffset;
+
+    //std::cout << yaw << " " << pitch << '\n';
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f;
 }
