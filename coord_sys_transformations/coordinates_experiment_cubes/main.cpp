@@ -245,6 +245,7 @@ int main()
 
         glm::mat4 translate = glm::mat4(1.0f);
         //translate[3][2] = -3.0f; // column major layout
+        translate[3][2] = 3.0f; // column major layout
 
         glm::mat4 scale = glm::mat4(1.0f);
         scale[0][0] = scale[1][1] = scale[2][2] = 1.5;
@@ -254,20 +255,21 @@ int main()
         /// View Matrix         
         // remember that we work in right handed coordinate systems in world space
 
-        float camX = 2.0f;
+        float camX = 0.0f;
         float camY = 1.0f;
-        float camZ = 3.0f;
+        //float camZ = 1.0f; // if object is behind the camera it won't be visible
+        float camZ = 6.0f;
 
         // rotate in a circle
-        const float radius = 10.0f;
-        camX = static_cast<float>(sin(glfwGetTime()) * radius);
-        camY = static_cast<float>(sin(glfwGetTime()) * radius);
-        camZ = static_cast<float>(cos(glfwGetTime()) * radius);
+        //const float radius = 10.0f;
+        //camX = static_cast<float>(sin(glfwGetTime()) * radius);
+        //camY = static_cast<float>(sin(glfwGetTime()) * radius);
+        //camZ = static_cast<float>(cos(glfwGetTime()) * radius);
 
         // world vectors
         glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 cameraPos = glm::vec3(camX, camY, camZ);
-        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 cameraTarget = glm::vec3(1.0, 1.0, 1.0);
         // glm::vec3 cameraTarget = cameraFront + cameraPos; // when pos varies
 
         // define camera axes
