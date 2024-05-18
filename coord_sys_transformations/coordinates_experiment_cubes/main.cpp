@@ -241,15 +241,64 @@ int main()
             sinf(angle), 0.0f, cosf(angle), 0.0,
             0.0, 0.0, 0.0, 1.0,
         });
+        rotation = glm::mat4(1.0); // disable rotation
 
         glm::mat4 translate = glm::mat4(1.0f);
-        translate[3][2] = -3.0f; // column major layout
+        //translate[3][2] = -3.0f; // column major layout
 
         glm::mat4 scale = glm::mat4(1.0f);
         scale[0][0] = scale[1][1] = scale[2][2] = 1.5;
 
         model = translate * rotation * scale * model;
+
+        /// View Matrix         
+        // remember that we work in right handed coordinate systems in world space
+
+        float camX = 2.0f;
+        float camY = 1.0f;
+        float camZ = 3.0f;
+
+        // rotate in a circle
+        const float radius = 10.0f;
+        camX = static_cast<float>(sin(glfwGetTime()) * radius);
+        camY = static_cast<float>(sin(glfwGetTime()) * radius);
+        camZ = static_cast<float>(cos(glfwGetTime()) * radius);
+
+        // world vectors
+        glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 cameraPos = glm::vec3(camX, camY, camZ);
+        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+        // glm::vec3 cameraTarget = cameraFront + cameraPos; // when pos varies
+
+        // define camera axes
+        // pos + dir = target
+        // pos - target = -dir
+        glm::vec3 zaxis = glm::normalize(cameraPos - cameraTarget); // oppose to front of camera (+z axis of camera)
+        glm::vec3 xaxis = glm::normalize(glm::cross(worldUp, zaxis)); // +x axis of camera (cameraRight)
+        glm::vec3 yaxis = glm::cross(zaxis, xaxis); // +y axis of camera (cameraUp)
+
+        glm::mat4 view_rotation = glm::transpose(glm::mat4{
+            xaxis.x, xaxis.y, xaxis.z, 0.0,
+            yaxis.x, yaxis.y, yaxis.z, 0.0,
+            zaxis.x, zaxis.y, zaxis.z, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        });
+
+        glm::mat4 view_translation = glm::transpose(glm::mat4{
+            1.0, 0.0, 0.0, -cameraPos.x,
+            0.0, 1.0, 0.0, -cameraPos.y,
+            0.0, 0.0, 1.0, -cameraPos.z,
+            0.0, 0.0, 0.0, 1.0
+        });
+
+        // NOTE: Look-at matrix is given by `rotation_matrix` * `translation_matrix`,
+        // unlike the conventional rotate then translate
+        view = view_rotation * view_translation;
+        //std::cout << "custom: " << glm::to_string(glm::transpose(view)) << std::endl;
         
+        //view = glm::lookAt(cameraPos, cameraTarget, up)
+        //std::cout << "glm: " << glm::to_string(glm::transpose(view)) << std::endl;
+
         /// Projection Matrix
         {
             float n = 1.0f, f = 100.0f, b = -1.0f, t = 1.0f, l = -1.33f, r = 1.33f;
