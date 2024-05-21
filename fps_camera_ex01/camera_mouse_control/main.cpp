@@ -198,7 +198,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
-    data = stbi_load(("../../resources/textures/awesomeface.png"), &width, &height, &nrChannels, 0);
+    data = stbi_load(("../../resources/textures/container-shooting-target.png"), &width, &height, &nrChannels, 0);
     if (data)
     {
         // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
@@ -234,7 +234,7 @@ int main()
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // bind textures on corresponding texture units
@@ -310,7 +310,8 @@ int main()
             model = glm::translate(model, cubePositions[i]);
 
             float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            if (i % 3 == 0)
+                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             ourShader.setMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -335,6 +336,13 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
+
+bool isJumping = false;
+bool isOnGround = true;
+float jumpVelocity = 0.0f;
+float gravity = 9.81f;
+float jumpStrength = 5.0f; // Adjust this value for jump height
+
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -353,7 +361,30 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(cam_right) * cameraSpeed;
 
-    cameraPos.y = 0; // set y coordinate of camera to always be zero
+    // Jumping logic
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isOnGround)
+    {
+        isJumping = true;
+        isOnGround = false;
+        jumpVelocity = jumpStrength;
+    }
+
+    if (isJumping)
+    {
+        cameraPos.y += jumpVelocity * deltaTime;
+        jumpVelocity -= gravity * deltaTime;
+        if (cameraPos.y <= 0.0f) // Assuming ground level is y = 0.0f
+        {
+            cameraPos.y = 0.0f;
+            isJumping = false;
+            isOnGround = true;
+            jumpVelocity = 0.0f;
+        }
+    }
+    else {
+        cameraPos.y = 0; // set y coordinate of camera to always be zero
+    }
+    
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
