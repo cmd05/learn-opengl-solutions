@@ -12,7 +12,13 @@ uniform mat4 projection;
 void main()
 {
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
+
 	FragPos = vec3(model * vec4(aPos, 1.0)); // world position vector to vertex
-	// Normal = model * vec4(aNormal, 0.0); // translation not required
+											 // we don't need w-component
+	
+	// <vec4> Normal = model * vec4(aNormal, 0.0); // translation not required, hence w-component is set to zero
+
 	Normal = mat3(transpose(inverse(model))) * aNormal; // normal matrix multiplication
+														// to take care of non uniform scaling
+														// ignore w-component by using vec3
 }
