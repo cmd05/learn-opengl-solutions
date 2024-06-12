@@ -4,6 +4,8 @@ _notes/
 *.xopp
 /test.cpp
 
+resources/archive
+
 # visual studio code
 .vscode
 
