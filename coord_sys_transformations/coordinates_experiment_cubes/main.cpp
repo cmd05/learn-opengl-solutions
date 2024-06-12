@@ -344,7 +344,7 @@ int main()
                 
                 //0.0f, 0.0f, 0.0f, 2.0f,
                 // Note: each vertex has its own independent clip space
-                // clip space for each vertex is an independent cube for that vertex from (-2,-2,-2) to (2,2,2)
+                // clip space for each vertex is an independent cube for that vertex from (-2,-2,-2) to (2,2,2) when w=2
             });
 
             // **Every vertex has it's own clip space in which it exists
