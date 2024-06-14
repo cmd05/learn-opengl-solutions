@@ -54,9 +54,8 @@ public:
 
 	~Audio() {
 		// Clean up
-		//sound->drop();
-		//delete eventReceiver;
-		//engine->drop();
+		curr_sound->drop();
+		SoundEngine->drop();
 	}
 
 	ISoundEngine* SoundEngine;
