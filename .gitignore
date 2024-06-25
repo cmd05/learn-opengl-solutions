@@ -6,6 +6,11 @@ _notes/
 
 resources/archive
 
+*.dll
+*.pdb
+*.lib
+*.exp
+
 # visual studio code
 .vscode
 
