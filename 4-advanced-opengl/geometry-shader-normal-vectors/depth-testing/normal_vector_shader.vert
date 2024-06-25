@@ -6,8 +6,8 @@ out VS_OUT {
     vec3 normal;
 } vs_out;
 
-uniform mat4 view;
 uniform mat4 model;
+uniform mat4 view;
 
 void main()
 {

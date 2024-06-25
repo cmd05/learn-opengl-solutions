@@ -125,11 +125,10 @@ int main()
         /// draw normals
         normalVectorShader.use();
 
-        ourShader.setMat4("model", model);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("projection", projection);
+        normalVectorShader.setMat4("model", model);
+        normalVectorShader.setMat4("view", view);
+        normalVectorShader.setMat4("projection", projection);
         ourModel.Draw(normalVectorShader);
-
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
