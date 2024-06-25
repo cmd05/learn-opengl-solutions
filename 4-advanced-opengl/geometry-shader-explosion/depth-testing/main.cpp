@@ -10,6 +10,9 @@
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
 
+#include <irrklang/irrKlang.h>
+using namespace irrklang;
+
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -33,6 +36,39 @@ float lastFrame = 0.0f;
 
 bool explode = false;
 float elapsed = 0;
+
+/// Audio
+
+class Audio {
+public:
+    Audio() {
+        SoundEngine = createIrrKlangDevice();
+        is_playing = false;
+    }
+
+    ~Audio() {
+        // Clean up
+        curr_sound->drop();
+        SoundEngine->drop();
+    }
+
+    ISoundEngine* SoundEngine;
+    ISound* curr_sound;
+    bool is_playing;
+};
+
+Audio audio_obj;
+
+void explosionSound() {
+    if (audio_obj.curr_sound) {
+        audio_obj.curr_sound->stop();
+        audio_obj.curr_sound->drop();
+    }
+
+    audio_obj.curr_sound = audio_obj.SoundEngine->play2D("../../resources/resources_audio/explosion.mp3", false, false, true);
+    audio_obj.is_playing = true;
+}
+
 
 int main()
 {
@@ -164,9 +200,10 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && !explode) {
         explode = true;
-
+        explosionSound();
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
