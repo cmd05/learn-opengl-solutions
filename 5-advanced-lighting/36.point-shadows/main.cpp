@@ -229,17 +229,23 @@ int main()
 // --------------------
 void renderScene(const Shader &shader)
 {
+    // glEnable(GL_CULL_FACE); // always cull
+
     // cube for cubemap
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(5.0f));
     shader.setMat4("model", model);
 
     // note that we disable culling here since we render 'inside' the cube instead of the usual 'outside' which throws off the normal culling methods.
-    glDisable(GL_CULL_FACE); 
+    // glDisable(GL_CULL_FACE); 
+    
+    glCullFace(GL_FRONT); // show back faces (i.e inside) of cube map
     shader.setInt("reverse_normals", 1); // A small little hack to invert normals when drawing cube from the inside so lighting still works.
     renderCube();
     shader.setInt("reverse_normals", 0); // and of course disable it
-    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK); // reset
+
+    // glEnable(GL_CULL_FACE);
 
     // cubes
     model = glm::mat4(1.0f);
