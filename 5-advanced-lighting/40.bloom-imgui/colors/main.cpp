@@ -228,7 +228,7 @@ int main()
         ImGui::SliderInt("Blur iterations", &blur_iterations, 2, 20);
         ImGui::SliderInt("Blur distance", &blur_distance, 0, 50);
 
-        const char* buttons[] = {"Gaussian Blur", "Kernel Blur", "Box Blur"};
+        const char* buttons[] = {"Two-Pass Gaussian Blur", "Gaussian Kernel Blur", "Box Blur"};
 
         if (ImGui::BeginTable("1x3_radio_table", 1))
         {
