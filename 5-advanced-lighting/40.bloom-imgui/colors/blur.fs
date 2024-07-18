@@ -33,7 +33,7 @@ vec4 kernel_compute_color(sampler2D screen_texture, vec2 tex_coords, float kerne
 
     for(int i = 0; i < 9; i++)
     {
-        sampleTex[i] = vec3(texture(screen_texture, tex_coords.st + offsets[i]));
+        sampleTex[i] = vec3(texture(screen_texture, tex_coords.st + offsets[i])); // get the colors of each pixel of the kernel
     }
 
     vec3 outputcol = vec3(0.0);
