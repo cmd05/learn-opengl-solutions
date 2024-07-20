@@ -30,7 +30,7 @@ void main()
     vec3 reflectDir = normalize(reflect(-lightDir, norm)); // reflect wrt normal vector
                                                            // points from fragment to direction of reflection
     
-    // If we would set this to 1.0f we’d get a really bright specular component
+    // If we would set this to 1.0f we'd get a really bright specular component
     float specularStrength = 0.5;
     float shine_value = 256;
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shine_value); // value between [0,1] raised to the shine value
