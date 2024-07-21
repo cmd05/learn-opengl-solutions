@@ -15,7 +15,7 @@ void main()
     // also store the per-fragment normals into the gbuffer
     gNormal = normalize(Normal);
     // and the diffuse per-fragment color
-    gAlbedo.rgb = vec3(0.95);
+    gAlbedo.rgb = vec3(0.95); // set a constant diffuse color for each pixel in this example
 
     // ignore specular
 }

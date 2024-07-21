@@ -13,6 +13,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+// FragPos and Normal are in view space
 void main()
 {
     vec4 viewPos = view * model * vec4(aPos, 1.0);

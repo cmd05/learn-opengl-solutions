@@ -90,7 +90,7 @@ int main()
 
     // load models
     // -----------
-    Model backpack(("../../../resources/objects/backpack/backpack.obj"));
+    Model backpack(("../../resources/objects/backpack/backpack.obj"));
 
     // configure g-buffer framebuffer
     // ------------------------------
@@ -169,31 +169,38 @@ int main()
     std::vector<glm::vec3> ssaoKernel;
     for (unsigned int i = 0; i < 64; ++i)
     {
+        // generate sample vectors wrt the point at which we are testing for Ambient Occlusion
+
         glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
         sample = glm::normalize(sample);
-        sample *= randomFloats(generator);
+        sample *= randomFloats(generator); // randomly scale the vector
+        // this gives a sample inside a hemisphere of radius 1.0
+
         float scale = float(i) / 64.0f;
 
         // scale samples s.t. they're more aligned to center of kernel
+        // by scaling samples based on distance to center
         scale = ourLerp(0.1f, 1.0f, scale * scale);
         sample *= scale;
         ssaoKernel.push_back(sample);
     }
 
     // generate noise texture
+    // , so what we can rotate our sample kernels
     // ----------------------
     std::vector<glm::vec3> ssaoNoise;
     for (unsigned int i = 0; i < 16; i++)
     {
+        // note: randomVec from noise texture, is used to rotate the sample kernel in *tangent space*, therefore we define its z-coordinate to be 0.0
         glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
         ssaoNoise.push_back(noise);
     }
     unsigned int noiseTexture; glGenTextures(1, &noiseTexture);
     glBindTexture(GL_TEXTURE_2D, noiseTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]); // 16 pixels (4 x 4); 32 bit values per pixel
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // repeat texture
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // lighting info

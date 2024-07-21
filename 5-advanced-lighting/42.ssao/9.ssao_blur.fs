@@ -7,6 +7,8 @@ uniform sampler2D ssaoInput;
 
 void main() 
 {
+    // average of 16 samples (box blur)
+
     vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0));
     float result = 0.0;
     for (int x = -2; x < 2; ++x) 
