@@ -88,6 +88,8 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
 }
 
 void main() {
+    // Note that the albedo textures that come from artists are generally authored in sRGB space which
+    // is why we first convert them to linear space before using albedo in our lighting calculations.
     vec3  albedo    = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2)); // convert to linear space
     float metallic  = texture(metallicMap, TexCoords).r;
     float roughness = texture(roughnessMap, TexCoords).r;
