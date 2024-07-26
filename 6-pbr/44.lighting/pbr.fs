@@ -73,11 +73,10 @@ void main() {
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
     
-    // We can think of the loop as solving the integral over Ω for direct light sources.
-    // loop over all light sources and add their outgoing radiance contributions
+    // We can think of the loop as solving the integral over Ω for direct light sources, for all incoming light directions W_i.
     
     // point light sources contribute only to a single incoming light direction, 
-    // so we only need to loop once per light source 
+    // so we only need to loop once per point light source
 
     // irradiance (outgoing radiance value)
     vec3 Lo = vec3(0.0); // Lo includes both diffuse and specular contributions
