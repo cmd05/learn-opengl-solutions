@@ -210,7 +210,7 @@ int main()
 
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrComponents;
-    float* hdrData = stbi_loadf("../../resources/textures/hdr/cobblestone_street_night_8k.hdr", &width, &height, &nrComponents, 0);
+    float* hdrData = stbi_loadf("../../resources/textures/hdr/newport_loft.hdr", &width, &height, &nrComponents, 0);
 
     unsigned int hdrTexture;
     if(hdrData) {
