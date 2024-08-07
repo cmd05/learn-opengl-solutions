@@ -97,37 +97,53 @@ void main() {
         // vec3 radiance = lightColors[i] * attenuation * cosTheta;
 
         // calculate cook torrance brdf
-        float NDF = DistributionGGX(N, H, roughness); // normal distribution
-        float G = GeometrySmith(N, V, L, roughness); // geometry
-        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0); // fresnel
+        
+        /// Specular contribution
+
+        // NDC, G, F each give a value between 0 and 1
+        float NDF = DistributionGGX(N, H, roughness); // normal distribution (larger the more microfacets aligned to H)
+        float G = GeometrySmith(N, V, L, roughness); // geometry (smaller the more microfacets shadowed by other microfacets)
+        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0); // fresnel (proportion of specular reflectance)
+                                                          // closer to 1, the more light and view vectors are at sheer angle to surface
 
         vec3 num = NDF * F * G; // fresnel component is a vec3
         float denom = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+                                                                                // as view and light vector are at sheer angles,
+                                                                                // higher specular highlight
     
         vec3 specular = num / denom; 
 
         // fresnel value directly corresponds to k_s (ratio of incoming light energy that gets reflected)
         vec3 kS = F; // specular contribution
 
+        /// Diffuse Contribution
+        
         // for energy conservation, the diffuse and specular light can't
         // be above 1.0 (unless the surface emits light); to preserve this
         // relationship the diffuse component (kD) should equal 1.0 - kS.
         vec3 kD = vec3(1.0) - kS; // portion that gets refracted
 
-        kD *= 1.0 - metallic; // metallic surfaces don't refract light in PBR, 
+        kD *= 1.0 - metallic; // for metals, all refracted light gets directly absorbed without scattering (reflecting back)
+                              // no diffuse effect of metallic surfaces
                               // so nullify the effect when surface is metallic
 
         // now implement reflectance equation to get: radiance due to reflection
         float NdotL = max(dot(N, L), 0.0);
+        vec3 diffuse = kD * (albedo / PI);
+
+        // diffuse component depends on both surface color (albedo) and light color (radiance)
+        // specular component only depends on light color (radiance)
 
         // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-        Lo += (kD * (albedo / PI) + specular) * radiance * NdotL; // add outgoing-radiance due to i-th light source
+        Lo += (diffuse + specular) * radiance * NdotL; // add outgoing-radiance due to i-th light source
+                                                       // more contribution of specular and diffuse components, when light vector
+                                                       // and normal vector align more
     }
 
     // add ambient color to fragment
-    vec3 ambient = vec3(0.03) * albedo * ao; // take ambient-occlusion into effect
+    vec3 ambient = vec3(0.03) * albedo * ao; // take ambient-occlusion into effect for ambient lighting
 
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + Lo; // final color in hdr space
 
     color = color / (color + vec3(1.0)); // reinhard tone mapping
     color = pow(color, vec3(1.0 / 2.2)); // gamma correction
