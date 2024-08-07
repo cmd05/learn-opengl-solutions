@@ -111,15 +111,18 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     } 
     
-    // ambient lighting *(we now use IBL as the ambient term)*
+    // ambient lighting calculation
+    // *(we now use *diffuse IBL* as the ambient term)*
+    // vec3 ambient = vec3(0.002);
     vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
     vec3 kD = 1.0 - kS;
+    
     kD *= 1.0 - metallic;	  
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse      = irradiance * albedo; // here
     vec3 ambient = (kD * diffuse) * ao;
-    // vec3 ambient = vec3(0.002);
     
+    // final color in hdr space
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
