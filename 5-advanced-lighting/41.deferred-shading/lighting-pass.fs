@@ -34,6 +34,11 @@ void main()
     {
         // calculate distance between light source and current fragment
         float distance = length(lights[i].Position - FragPos);
+
+        // if the condition `if` condition in one of gpu cores is true, while in all others it is
+        // false, the other cores have to wait
+        // https://stackoverflow.com/a/37837060/22743875
+        // alternative: tile based light culling
         if(distance < lights[i].Radius)
         {
             // diffuse
