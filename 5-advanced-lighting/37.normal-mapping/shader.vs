@@ -13,6 +13,8 @@ out VS_OUT {
     vec3 TangentFragPos;
 } vs_out;
 
+out vec3 Normal;
+
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
@@ -27,17 +29,21 @@ void main()
     
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     vec3 T = normalize(normalMatrix * aTangent);
-    vec3 N = normalize(normalMatrix * aNormal);
+    vec3 N = normalize(normalMatrix * aNormal); // convert normal from model space to world space
+    
     // re-orthogonalize T with respect to N (Gram-Schmidt process) 
     // (to remedy the effect of averaged tangent vector)
     T = normalize(T - dot(T, N) * N);
     // then retrieve perpendicular vector B with the cross product of T and N
     vec3 B = cross(N, T);
     
-    mat3 TBN = transpose(mat3(T, B, N));    
+    mat3 TBN = transpose(mat3(T, B, N)); // inverse TBN: world space to tangent space
+    // convert to tangent space
     vs_out.TangentLightPos = TBN * lightPos;
     vs_out.TangentViewPos  = TBN * viewPos;
     vs_out.TangentFragPos  = TBN * vs_out.FragPos;
-        
+    
+    Normal = normalize(normalMatrix * aNormal); // use as example when normal mapping is off
+
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }

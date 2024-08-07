@@ -33,6 +33,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+bool normalMapping = false;
+
 int main()
 {
     // glfw: initialize and configure
@@ -125,6 +127,8 @@ int main()
         shader.setMat4("model", model);
         shader.setVec3("viewPos", camera.Position);
         shader.setVec3("lightPos", lightPos);
+        shader.setBool("normalMapping", normalMapping);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
@@ -167,7 +171,7 @@ void renderQuad()
         glm::vec2 uv3(1.0f, 0.0f);  
         glm::vec2 uv4(1.0f, 1.0f);
         // normal vector
-        glm::vec3 nm(0.0f, 0.0f, 1.0f);
+        glm::vec3 nm(0.0f, 0.0f, 1.0f); // assume normal vector for all triangle vertices is upwards in model space
 
         // calculate tangent/bitangent vectors of both triangles
         glm::vec3 tangent1, bitangent1;
@@ -245,6 +249,8 @@ void renderQuad()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
+bool isPressed = false;
+
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -258,6 +264,15 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isPressed) {
+        normalMapping = !normalMapping;
+        std::cout << "normal mapping: " << (int) normalMapping <<  '\n';
+        isPressed = true;
+    }
+    
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+        isPressed = false; 
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
